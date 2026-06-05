@@ -3,9 +3,18 @@ export interface Pair {
   to: string
 }
 
-/** One sensible starter pair per game so the watchlist is never empty on first run. */
+/** Sensible starter pairs per game so the watchlist is never empty on first run. */
 export function seedDefault(version: 1 | 2): Pair[] {
-  return version === 2 ? [{ from: 'Exalted Orb', to: 'Divine Orb' }] : [{ from: 'Chaos Orb', to: 'Divine Orb' }]
+  return version === 2
+    ? [
+        { from: 'Divine Orb', to: 'Exalted Orb' },
+        { from: 'Divine Orb', to: 'Chaos Orb' },
+        { from: 'Mirror of Kalandra', to: 'Divine Orb' },
+      ]
+    : [
+        { from: 'Divine Orb', to: 'Chaos Orb' },
+        { from: 'Mirror of Kalandra', to: 'Divine Orb' },
+      ]
 }
 
 function samePair(a: Pair, b: Pair): boolean {

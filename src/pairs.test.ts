@@ -2,9 +2,18 @@ import { describe, expect, it } from 'vitest'
 import { addPair, type Pair, removePair, sanitizePairs, seedDefault } from './pairs'
 
 describe('seedDefault', () => {
-  it('seeds Chaos<->Divine for PoE1 and Exalt<->Divine for PoE2', () => {
-    expect(seedDefault(1)).toEqual([{ from: 'Chaos Orb', to: 'Divine Orb' }])
-    expect(seedDefault(2)).toEqual([{ from: 'Exalted Orb', to: 'Divine Orb' }])
+  it('seeds Divine->Chaos and Mirror->Divine for PoE1', () => {
+    expect(seedDefault(1)).toEqual([
+      { from: 'Divine Orb', to: 'Chaos Orb' },
+      { from: 'Mirror of Kalandra', to: 'Divine Orb' },
+    ])
+  })
+  it('seeds Divine->Exalt, Divine->Chaos, Mirror->Divine for PoE2', () => {
+    expect(seedDefault(2)).toEqual([
+      { from: 'Divine Orb', to: 'Exalted Orb' },
+      { from: 'Divine Orb', to: 'Chaos Orb' },
+      { from: 'Mirror of Kalandra', to: 'Divine Orb' },
+    ])
   })
 })
 

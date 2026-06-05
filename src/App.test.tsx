@@ -29,8 +29,11 @@ describe('App', () => {
   it('seeds the default pair on first run and persists it', async () => {
     const ctx = makeCtx(undefined, 1)
     render(<App ctx={ctx} />)
-    await waitFor(() => expect(screen.getByText(/1 Chaos Orb =/)).toBeTruthy())
-    expect(ctx.storage.set).toHaveBeenCalledWith('pairs', [{ from: 'Chaos Orb', to: 'Divine Orb' }])
+    await waitFor(() => expect(screen.getByText(/1 Divine Orb = .* Chaos Orb/)).toBeTruthy())
+    expect(ctx.storage.set).toHaveBeenCalledWith('pairs', [
+      { from: 'Divine Orb', to: 'Chaos Orb' },
+      { from: 'Mirror of Kalandra', to: 'Divine Orb' },
+    ])
   })
 
   it('renders stored pairs', async () => {
