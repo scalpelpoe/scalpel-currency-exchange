@@ -93,7 +93,8 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
             zIndex: 10,
             left: 0,
             right: 0,
-            maxHeight: 240,
+            // ~4 rows (30px each + dividers); the rest scrolls.
+            maxHeight: 124,
             overflowY: 'auto',
             background: 'var(--bg-card)',
             border: '1px solid var(--border)',
@@ -123,6 +124,8 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
                     padding: '4px 8px',
                     background: hovered === i ? 'rgba(255, 255, 255, 0.05)' : 'transparent',
                     border: 'none',
+                    // Override Scalpel's global button radius so the hover fill is square.
+                    borderRadius: 0,
                     cursor: 'pointer',
                     textAlign: 'left',
                   }}
