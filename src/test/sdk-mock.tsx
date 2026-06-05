@@ -8,6 +8,11 @@ export const TREND_UP_COLOR = '#4a9eff'
 export const TREND_DOWN_COLOR = '#ef5350'
 // Recognizable marker so formatRate tests assert delegation, not real formatting.
 export const formatPrice = (v: number): string => `P${v}`
+export function getTrendDirection(graph: (number | null)[]): 'up' | 'down' | 'flat' {
+  const last = [...graph].reverse().find((v): v is number => typeof v === 'number')
+  if (last == null) return 'flat'
+  return last > TREND_THRESHOLD_PCT ? 'up' : last < -TREND_THRESHOLD_PCT ? 'down' : 'flat'
+}
 
 export function Button({ children, onClick, disabled }: { children?: ReactNode; onClick?: () => void; disabled?: boolean; variant?: string; size?: string }) {
   return <button onClick={onClick} disabled={disabled}>{children}</button>

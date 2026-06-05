@@ -1,11 +1,12 @@
 import { Drag } from '@icon-park/react'
 import { RemoveButton, TREND_DOWN_COLOR, TREND_UP_COLOR } from '@scalpelpoe/plugin-sdk'
 import type { PriceEntry } from '@scalpelpoe/plugin-sdk'
-import { useState } from 'react'
+import { type MouseEvent, useState } from 'react'
 import { CurrencyCard } from './CurrencyCard'
 import { formatRate } from './format'
 import type { Pair } from './pairs'
-import { pairTrend, rate } from './rates'
+import { pairTrend, rate, rateSeries } from './rates'
+import { Sparkline } from './Sparkline'
 
 interface Props {
   index: Map<string, PriceEntry>
@@ -45,6 +46,17 @@ export function WatchlistRow({
   const arrow = trend?.dir === 'up' ? '▲' : trend?.dir === 'down' ? '▼' : '-'
   const [armed, setArmed] = useState(false)
   const draggable = armed && rowIndex !== undefined
+  // Hover the details to show the rate's 7-day sparkline, portaled at the cursor.
+  const [hovered, setHovered] = useState(false)
+  const [cursor, setCursor] = useState({ viewportX: 0, viewportY: 0, scale: 1 })
+  const series = hovered ? rateSeries(index, pair.from, pair.to) : []
+  const showChart = series.filter((v) => v != null).length >= 2
+  function trackCursor(e: MouseEvent<HTMLDivElement>): void {
+    const el = e.currentTarget
+    const rect = el.getBoundingClientRect()
+    const scale = el.offsetWidth > 0 ? rect.width / el.offsetWidth : 1
+    setCursor({ viewportX: e.clientX, viewportY: e.clientY, scale })
+  }
 
   return (
     <div
@@ -96,7 +108,11 @@ export function WatchlistRow({
       <CurrencyCard name={pair.from} version={version} />
 
       <div
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+        onMouseMove={trackCursor}
         style={{
+          position: 'relative',
           flex: '0 0 auto',
           display: 'flex',
           flexDirection: 'column',
@@ -104,6 +120,7 @@ export function WatchlistRow({
           justifyContent: 'center',
           gap: 2,
           minWidth: 92,
+          cursor: showChart ? 'help' : undefined,
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -144,6 +161,7 @@ export function WatchlistRow({
             {arrow} {Math.abs(trend.pct).toFixed(1)}%
           </span>
         )}
+        {showChart && <Sparkline graph={series} cursor={cursor} />}
       </div>
 
       <CurrencyCard name={pair.to} version={version} />

@@ -44,6 +44,30 @@ export function pairTrend(idx: Map<string, PriceEntry>, from: string, to: string
   return { dir, pct }
 }
 
+/** Per-day percent-change series of the from->to rate, for a sparkline. Combines
+ *  each currency's 7-day cumulative percent-change graph point by point:
+ *  r[i] = ((1 + aGraph[i]/100) / (1 + bGraph[i]/100) - 1) * 100. Entries are null
+ *  where either point is null or the math is non-finite. Empty when either
+ *  currency lacks a graph. The last point matches pairTrend().pct. */
+export function rateSeries(idx: Map<string, PriceEntry>, from: string, to: string): (number | null)[] {
+  const a = idx.get(from)?.graph
+  const b = idx.get(to)?.graph
+  if (!a || !b) return []
+  const len = Math.min(a.length, b.length)
+  const out: (number | null)[] = []
+  for (let i = 0; i < len; i++) {
+    const av = a[i]
+    const bv = b[i]
+    if (av == null || bv == null) {
+      out.push(null)
+      continue
+    }
+    const pct = ((1 + av / 100) / (1 + bv / 100) - 1) * 100
+    out.push(Number.isFinite(pct) ? pct : null)
+  }
+  return out
+}
+
 function lastNumber(graph: (number | null)[] | undefined): number | null {
   if (!graph || graph.length === 0) return null
   for (let i = graph.length - 1; i >= 0; i--) {

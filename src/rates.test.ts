@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PRICES } from './__fixtures__/prices'
-import { buildRateIndex, currencyNames, pairTrend, rate } from './rates'
+import { buildRateIndex, currencyNames, pairTrend, rate, rateSeries } from './rates'
 
 describe('currencyNames', () => {
   it('returns the entry names sorted alphabetically', () => {
@@ -48,5 +48,18 @@ describe('pairTrend', () => {
     const t = pairTrend(idx, 'A', 'B')
     expect(t.dir).toBe('flat')
     expect(Number.isFinite(t.pct)).toBe(true)
+  })
+})
+
+describe('rateSeries', () => {
+  it('combines both currency graphs point by point; last point matches pairTrend', () => {
+    const idx = buildRateIndex(PRICES)
+    const s = rateSeries(idx, 'Divine Orb', 'Exalted Orb')
+    expect(s).toHaveLength(7)
+    expect(s[6]).toBeCloseTo(((1 + 10 / 100) / (1 + -10 / 100) - 1) * 100, 5)
+  })
+  it('is empty when a currency lacks a graph', () => {
+    const idx = buildRateIndex(PRICES)
+    expect(rateSeries(idx, 'Orb of Annulment', 'Chaos Orb')).toEqual([])
   })
 })
