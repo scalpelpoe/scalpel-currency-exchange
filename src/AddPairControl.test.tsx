@@ -7,7 +7,7 @@ describe('AddPairControl', () => {
 
   it('calls onAdd with the chosen from/to and is disabled until both are set', () => {
     const onAdd = vi.fn()
-    render(<AddPairControl names={names} onAdd={onAdd} />)
+    render(<AddPairControl names={names} version={1} onAdd={onAdd} />)
     const addBtn = screen.getByRole('button', { name: /add/i })
     expect((addBtn as HTMLButtonElement).disabled).toBe(true)
 

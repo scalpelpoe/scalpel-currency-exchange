@@ -1,7 +1,4 @@
-import { defaultPoeItem, getItemIcon } from '@scalpelpoe/plugin-sdk'
-
-// PoE's currency text gold. Not a Scalpel CSS var, so kept here as a constant.
-const CURRENCY_GOLD = '#FEEAAF'
+import { CURRENCY_GOLD, currencyIcon } from './currency-visuals'
 
 interface Props {
   name: string
@@ -13,7 +10,7 @@ interface Props {
  *  copy of the currency icon glows behind the content (the same icon-glow trick
  *  the app uses elsewhere), giving each card a soft currency-colored wash. */
 export function CurrencyCard({ name, version }: Props): JSX.Element {
-  const icon = getItemIcon(defaultPoeItem({ name, baseType: name, itemClass: 'Currency' }, version))
+  const icon = currencyIcon(name, version)
   return (
     <div
       style={{

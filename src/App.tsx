@@ -57,7 +57,11 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
   return (
     <div style={{ padding: 12, color: 'var(--text)' }}>
       <Hero updatedAt={data.updatedAt} now={now} refreshing={refreshing} onRefresh={() => void onRefresh()}>
-        <AddPairControl names={data.names} onAdd={(p) => persist(addPair(pairs ?? [], p))} />
+        <AddPairControl
+          names={data.names}
+          version={ctx.getPoeVersion()}
+          onAdd={(p) => persist(addPair(pairs ?? [], p))}
+        />
       </Hero>
 
       {data.error && <ErrorBanner message={`Could not load prices: ${data.error}`} tone="error" />}
