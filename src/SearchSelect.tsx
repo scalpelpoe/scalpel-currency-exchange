@@ -100,6 +100,8 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
             border: '1px solid var(--border)',
             borderRadius: 0,
             marginTop: 2,
+            // Lift the dropdown off the panel behind it.
+            boxShadow: '0 6px 18px rgba(0, 0, 0, 0.55)',
           }}
         >
           {matches.map((n, i) => {
