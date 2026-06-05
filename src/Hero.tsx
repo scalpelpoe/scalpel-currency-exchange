@@ -46,9 +46,9 @@ export function Hero({ updatedAt, now, refreshing, onRefresh, children }: Props)
           {refreshing ? (
             'Refreshing...'
           ) : (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              {formatUpdatedAgo(updatedAt, now)}
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 9 }}>
               <Refresh theme="outline" size={14} fill="currentColor" />
+              {formatUpdatedAgo(updatedAt, now)}
             </span>
           )}
         </Button>
