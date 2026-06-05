@@ -2,6 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { CurrencyCard } from './CurrencyCard'
 import { CURRENCY_GOLD, currencyIcon } from './currency-visuals'
 
+/** Picker field height; the empty input and the selected faux-input match it so
+ *  the field never changes height when a currency is chosen. */
+const INPUT_HEIGHT = 30
+
 interface Props {
   label: string
   names: string[]
@@ -30,29 +34,29 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
 
   if (value !== null) {
     return (
-      <div style={{ flex: 1, minWidth: 0, display: 'flex', alignItems: 'stretch', gap: 4 }}>
-        <CurrencyCard name={value} version={version} />
-        <button
-          type="button"
-          aria-label={`Remove ${label}`}
-          title="Remove"
-          onClick={() => onSelect(null)}
-          style={{
-            flex: '0 0 auto',
-            display: 'inline-flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: 22,
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-dim)',
-            cursor: 'pointer',
-            fontSize: 15,
-            lineHeight: 1,
-          }}
-        >
-          &#x2715;
-        </button>
+      <div
+        style={{
+          flex: 1,
+          minWidth: 0,
+          height: INPUT_HEIGHT,
+          boxSizing: 'border-box',
+          display: 'flex',
+          alignItems: 'stretch',
+          // Faux input: same bg/height as the real input so its edges still show
+          // around the card and the field never shifts height.
+          background: 'rgba(0, 0, 0, 0.3)',
+          borderRadius: 4,
+          padding: 3,
+          overflow: 'hidden',
+        }}
+      >
+        <CurrencyCard
+          name={value}
+          version={version}
+          compact
+          onRemove={() => onSelect(null)}
+          removeLabel={`Remove ${label}`}
+        />
       </div>
     )
   }
@@ -71,12 +75,14 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
         }}
         style={{
           width: '100%',
+          height: INPUT_HEIGHT,
+          boxSizing: 'border-box',
           // Match the app's standard inputs (settings page): bg-black/30, no border.
           background: 'rgba(0, 0, 0, 0.3)',
           color: 'var(--text)',
           border: 'none',
           borderRadius: 4,
-          padding: '6px 8px',
+          padding: '0 8px',
           fontSize: 12,
         }}
       />
@@ -91,7 +97,7 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
             overflowY: 'auto',
             background: 'var(--bg-card)',
             border: '1px solid var(--border)',
-            borderRadius: 4,
+            borderRadius: 0,
             marginTop: 2,
           }}
         >
