@@ -7,6 +7,6 @@
   "author": "scalpelpoe",
   "homepage": "https://github.com/scalpelpoe/scalpel-currency-exchange",
   "iconUrl": "https://raw.githubusercontent.com/scalpelpoe/scalpel-currency-exchange/main/icon.png",
-  "scalpelMinVersion": ">=0.9.13",
+  "scalpelMinVersion": ">=0.9.13-rc3",
   "poeVersions": [1, 2]
 }
