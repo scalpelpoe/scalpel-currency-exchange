@@ -13,10 +13,11 @@ interface Props {
   onRemove: () => void
 }
 
-/** One watchlist row: a CurrencyCard on each side with the conversion details
- *  centered between them (a "1 : X" rate box, a swap button that flips the
- *  direction in place, and the 7-day % change). A muted "no price data" note
- *  replaces the rate when either currency is absent from the snapshot. */
+/** One watchlist row, styled as a settings-style block card (.setting-box): a
+ *  CurrencyCard on each side with the conversion details centered between them -
+ *  a "1 : X" rate box with a swap button to its right, and the 7-day % change
+ *  beneath. A muted "no price data" note replaces the rate when either currency
+ *  is absent from the snapshot. */
 export function WatchlistRow({ index, pair, version, onSwap, onRemove }: Props): JSX.Element {
   const r = rate(index, pair.from, pair.to)
   const trend = r === null ? null : pairTrend(index, pair.from, pair.to)
@@ -24,15 +25,7 @@ export function WatchlistRow({ index, pair, version, onSwap, onRemove }: Props):
   const arrow = trend?.dir === 'up' ? '▲' : trend?.dir === 'down' ? '▼' : '-'
 
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'stretch',
-        gap: 8,
-        padding: '6px 4px',
-        borderBottom: '1px solid var(--border)',
-      }}
-    >
+    <div className="setting-box" style={{ gap: 8, cursor: 'default', marginBottom: 6 }}>
       <CurrencyCard name={pair.from} version={version} />
 
       <div
@@ -42,42 +35,43 @@ export function WatchlistRow({ index, pair, version, onSwap, onRemove }: Props):
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          gap: 4,
-          minWidth: 88,
+          gap: 2,
+          minWidth: 92,
         }}
       >
-        <div
-          style={{
-            padding: '2px 10px',
-            borderRadius: 999,
-            background: 'var(--bg-card)',
-            border: '1px solid var(--border)',
-            fontSize: 13,
-            color: 'var(--text)',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {r === null ? 'no price data' : `1 : ${formatRate(r)}`}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div
+            style={{
+              padding: '2px 10px',
+              borderRadius: 999,
+              background: 'rgba(0, 0, 0, 0.35)',
+              fontSize: 13,
+              color: 'var(--text)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {r === null ? 'no price data' : `1 : ${formatRate(r)}`}
+          </div>
+          <button
+            type="button"
+            onClick={onSwap}
+            aria-label="swap"
+            title="Swap conversion direction"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--text-dim)',
+              cursor: 'pointer',
+              fontSize: 14,
+              lineHeight: 1,
+              padding: 2,
+            }}
+          >
+            <span aria-hidden>&#x21C4;</span>
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={onSwap}
-          aria-label="swap"
-          title="Swap conversion direction"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 4,
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-dim)',
-            cursor: 'pointer',
-            fontSize: 11,
-            padding: 0,
-          }}
-        >
-          <span aria-hidden>&#x21C4;</span> swap
-        </button>
         {trend && (
           <span style={{ color: trendColor, fontSize: 11, whiteSpace: 'nowrap' }}>
             {arrow} {Math.abs(trend.pct).toFixed(1)}%
