@@ -15,7 +15,9 @@ describe('Hero', () => {
   it('fires onRefresh when the refresh button is clicked', () => {
     const onRefresh = vi.fn()
     render(<Hero updatedAt={null} now={0} refreshing={false} onRefresh={onRefresh} />)
-    fireEvent.click(screen.getByRole('button', { name: /refresh/i }))
+    // The refresh control is now an icon button (no "Refresh" text); Hero has
+    // exactly one button, so match it by role.
+    fireEvent.click(screen.getByRole('button'))
     expect(onRefresh).toHaveBeenCalled()
   })
 })

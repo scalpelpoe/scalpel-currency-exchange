@@ -1,3 +1,4 @@
+import { Refresh } from '@icon-park/react'
 import { Button } from '@scalpelpoe/plugin-sdk'
 import type { ReactNode } from 'react'
 
@@ -45,7 +46,14 @@ export function Hero({ updatedAt, now, refreshing, onRefresh, children }: Props)
           </div>
         </div>
         <Button variant="ghost" onClick={onRefresh} disabled={refreshing}>
-          {refreshing ? 'Refreshing...' : 'Refresh'}
+          {refreshing ? (
+            'Refreshing...'
+          ) : (
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              {formatUpdatedAgo(updatedAt, now)}
+              <Refresh theme="outline" size={14} fill="currentColor" />
+            </span>
+          )}
         </Button>
       </div>
       {children}
