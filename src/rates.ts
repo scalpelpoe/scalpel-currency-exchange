@@ -39,6 +39,7 @@ export function pairTrend(idx: Map<string, PriceEntry>, from: string, to: string
   const bLast = lastNumber(b)
   if (aLast === null || bLast === null) return { dir: 'flat', pct: 0 }
   const pct = ((1 + aLast / 100) / (1 + bLast / 100) - 1) * 100
+  if (!Number.isFinite(pct)) return { dir: 'flat', pct: 0 }
   const dir = pct > TREND_THRESHOLD_PCT ? 'up' : pct < -TREND_THRESHOLD_PCT ? 'down' : 'flat'
   return { dir, pct }
 }

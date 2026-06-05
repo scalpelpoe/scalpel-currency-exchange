@@ -19,7 +19,7 @@ export function WatchlistRow({ index, pair, onRemove }: Props): JSX.Element {
   const missing = fwd === null || rev === null
   const trend = missing ? null : pairTrend(index, pair.from, pair.to)
   const trendColor = trend?.dir === 'up' ? TREND_UP_COLOR : trend?.dir === 'down' ? TREND_DOWN_COLOR : 'var(--text-dim)'
-  const arrow = trend?.dir === 'up' ? '▲' : trend?.dir === 'down' ? '▼' : '–'
+  const arrow = trend?.dir === 'up' ? '▲' : trend?.dir === 'down' ? '▼' : '-'
 
   return (
     <div

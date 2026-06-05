@@ -12,6 +12,11 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
   const [pairs, setPairs] = useState<Pair[] | null>(null)
   const [refreshing, setRefreshing] = useState(false)
   const loadedRef = useRef(false)
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 30_000)
+    return () => clearInterval(id)
+  }, [])
 
   // Load the watchlist once: stored pairs, or a seeded default on first run.
   useEffect(() => {
@@ -46,7 +51,7 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
 
   return (
     <div style={{ padding: 12, color: 'var(--text)' }}>
-      <Hero updatedAt={data.updatedAt} now={Date.now()} refreshing={refreshing} onRefresh={() => void onRefresh()} />
+      <Hero updatedAt={data.updatedAt} now={now} refreshing={refreshing} onRefresh={() => void onRefresh()} />
 
       {data.error && <ErrorBanner message={`Could not load prices: ${data.error}`} tone="error" />}
 

@@ -4,8 +4,8 @@ import type { ReactNode } from 'react'
 // is a types-only stub that throws at runtime, so vitest aliases this file in.
 // tsc does not use the alias, so production types still come from the real pkg.
 export const TREND_THRESHOLD_PCT = 15
-export const TREND_UP_COLOR = '#3fb950'
-export const TREND_DOWN_COLOR = '#f85149'
+export const TREND_UP_COLOR = '#4a9eff'
+export const TREND_DOWN_COLOR = '#ef5350'
 // Recognizable marker so formatRate tests assert delegation, not real formatting.
 export const formatPrice = (v: number): string => `P${v}`
 

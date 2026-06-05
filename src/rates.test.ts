@@ -40,4 +40,13 @@ describe('pairTrend', () => {
     const idx = buildRateIndex(PRICES)
     expect(pairTrend(idx, 'Orb of Annulment', 'Chaos Orb').dir).toBe('flat')
   })
+  it('is flat (not Infinity) when the to-currency window change is -100%', () => {
+    const idx = buildRateIndex([
+      { name: 'A', category: 'currency', chaosValue: 10, graph: [0, 0, 0, 0, 0, 0, 5] },
+      { name: 'B', category: 'currency', chaosValue: 10, graph: [0, 0, 0, 0, 0, 0, -100] },
+    ] as never)
+    const t = pairTrend(idx, 'A', 'B')
+    expect(t.dir).toBe('flat')
+    expect(Number.isFinite(t.pct)).toBe(true)
+  })
 })

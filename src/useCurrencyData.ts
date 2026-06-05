@@ -1,5 +1,5 @@
 import type { PriceEntry, ScalpelPluginContext } from '@scalpelpoe/plugin-sdk'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { buildRateIndex, currencyNames } from './rates'
 
 export interface CurrencyData {
@@ -21,8 +21,7 @@ export function useCurrencyData(ctx: ScalpelPluginContext): CurrencyData {
   const [error, setError] = useState<string | null>(null)
   // Drop stale loads when several overlap (mount + onChange + manual refresh).
   const gen = useRef(0)
-  const indexRef = useRef<Map<string, PriceEntry>>(new Map())
-  indexRef.current = buildRateIndex(entries)
+  const index = useMemo(() => buildRateIndex(entries), [entries])
 
   const load = useCallback(async () => {
     const my = ++gen.current
@@ -57,5 +56,5 @@ export function useCurrencyData(ctx: ScalpelPluginContext): CurrencyData {
     return off
   }, [ctx, load])
 
-  return { index: indexRef.current, names: currencyNames(entries), updatedAt, loading, error, refresh }
+  return { index, names: currencyNames(entries), updatedAt, loading, error, refresh }
 }
