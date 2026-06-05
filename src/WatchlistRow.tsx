@@ -51,11 +51,16 @@ export function WatchlistRow({
       className="setting-box"
       style={{ gap: 8, cursor: 'default', marginBottom: 6, opacity: armed ? 0.6 : 1 }}
       draggable={draggable}
-      onDragStart={() => {
+      onDragStart={(e) => {
+        // Declare a move op (not copy) so the cursor is a move arrow, not the
+        // red no-drop cross-out. setData keeps the drag valid across engines.
+        e.dataTransfer.effectAllowed = 'move'
+        e.dataTransfer.setData('text/plain', '')
         if (rowIndex !== undefined) onDragStartRow?.(rowIndex)
       }}
       onDragOver={(e) => {
         e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
       }}
       onDrop={(e) => {
         e.preventDefault()

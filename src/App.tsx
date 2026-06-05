@@ -66,7 +66,14 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
         />
       )}
 
-      <div>
+      <div
+        onDragOver={(e) => {
+          // Keep the gaps between rows droppable so the cursor stays a move
+          // arrow instead of flickering to the red no-drop cross-out.
+          e.preventDefault()
+          e.dataTransfer.dropEffect = 'move'
+        }}
+      >
         {(pairs ?? []).map((pair, i) => (
           <WatchlistRow
             key={`${pair.from}->${pair.to}`}
