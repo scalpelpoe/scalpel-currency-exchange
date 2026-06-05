@@ -39,6 +39,16 @@ export function swapPair(pairs: Pair[], index: number): Pair[] {
   return pairs.map((p, i) => (i === index ? { from: p.to, to: p.from } : p))
 }
 
+/** Move the pair at `from` to position `to`, shifting the rest. Returns the same
+ *  array for a no-op or out-of-range move. */
+export function movePair(pairs: Pair[], from: number, to: number): Pair[] {
+  if (from === to || from < 0 || to < 0 || from >= pairs.length || to >= pairs.length) return pairs
+  const next = [...pairs]
+  const [moved] = next.splice(from, 1)
+  next.splice(to, 0, moved)
+  return next
+}
+
 /** Coerce untrusted storage data into a clean Pair[]; drop anything malformed. */
 export function sanitizePairs(raw: unknown): Pair[] {
   if (!Array.isArray(raw)) return []

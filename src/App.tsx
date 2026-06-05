@@ -3,7 +3,7 @@ import type { ScalpelPluginContext } from '@scalpelpoe/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 import { AddPairControl } from './AddPairControl'
 import { Hero } from './Hero'
-import { addPair, type Pair, removePair, sanitizePairs, seedDefault, swapPair } from './pairs'
+import { addPair, movePair, type Pair, removePair, sanitizePairs, seedDefault, swapPair } from './pairs'
 import { useCurrencyData } from './useCurrencyData'
 import { WatchlistRow } from './WatchlistRow'
 
@@ -11,6 +11,7 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
   const data = useCurrencyData(ctx)
   const [pairs, setPairs] = useState<Pair[] | null>(null)
   const [refreshing, setRefreshing] = useState(false)
+  const [dragIndex, setDragIndex] = useState<number | null>(null)
   const loadedRef = useRef(false)
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
@@ -74,6 +75,13 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
             version={ctx.getPoeVersion()}
             onSwap={() => persist(swapPair(pairs ?? [], i))}
             onRemove={() => persist(removePair(pairs ?? [], i))}
+            rowIndex={i}
+            onDragStartRow={(from) => setDragIndex(from)}
+            onDropRow={(to) => {
+              if (dragIndex !== null && dragIndex !== to) persist(movePair(pairs ?? [], dragIndex, to))
+              setDragIndex(null)
+            }}
+            onDragEndRow={() => setDragIndex(null)}
           />
         ))}
       </div>

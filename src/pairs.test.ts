@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addPair, type Pair, removePair, sanitizePairs, seedDefault, swapPair } from './pairs'
+import { addPair, movePair, type Pair, removePair, sanitizePairs, seedDefault, swapPair } from './pairs'
 
 describe('seedDefault', () => {
   it('seeds Divine->Chaos and Mirror->Divine for PoE1', () => {
@@ -56,6 +56,23 @@ describe('swapPair', () => {
       { from: 'Divine Orb', to: 'Chaos Orb' },
       { from: 'Exalted Orb', to: 'Divine Orb' },
     ])
+  })
+})
+
+describe('movePair', () => {
+  const base: Pair[] = [
+    { from: 'Chaos Orb', to: 'Divine Orb' },
+    { from: 'Exalted Orb', to: 'Divine Orb' },
+    { from: 'Mirror of Kalandra', to: 'Divine Orb' },
+  ]
+  it('moves an item from one index to another, shifting the rest', () => {
+    expect(movePair(base, 0, 2)).toEqual([base[1], base[2], base[0]])
+    expect(movePair(base, 2, 0)).toEqual([base[2], base[0], base[1]])
+  })
+  it('returns the same array for a no-op or out-of-range move', () => {
+    expect(movePair(base, 1, 1)).toBe(base)
+    expect(movePair(base, 5, 0)).toBe(base)
+    expect(movePair(base, 0, -1)).toBe(base)
   })
 })
 
