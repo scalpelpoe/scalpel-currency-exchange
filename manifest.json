@@ -1,0 +1,11 @@
+{
+  "manifestVersion": 1,
+  "id": "currency-exchange",
+  "version": "1.0.0",
+  "name": "Currency Exchange",
+  "description": "A personal currency cross-rate watchlist, powered by poe.ninja.",
+  "author": "scalpelpoe",
+  "homepage": "https://github.com/scalpelpoe/scalpel-currency-exchange",
+  "scalpelMinVersion": ">=0.9.13-rc2",
+  "poeVersions": [1, 2]
+}
