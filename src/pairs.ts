@@ -34,6 +34,11 @@ export function removePair(pairs: Pair[], index: number): Pair[] {
   return pairs.filter((_, i) => i !== index)
 }
 
+/** Reverse the from/to of the pair at `index` (flip conversion direction). */
+export function swapPair(pairs: Pair[], index: number): Pair[] {
+  return pairs.map((p, i) => (i === index ? { from: p.to, to: p.from } : p))
+}
+
 /** Coerce untrusted storage data into a clean Pair[]; drop anything malformed. */
 export function sanitizePairs(raw: unknown): Pair[] {
   if (!Array.isArray(raw)) return []

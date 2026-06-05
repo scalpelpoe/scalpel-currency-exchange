@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { addPair, type Pair, removePair, sanitizePairs, seedDefault } from './pairs'
+import { addPair, type Pair, removePair, sanitizePairs, seedDefault, swapPair } from './pairs'
 
 describe('seedDefault', () => {
   it('seeds Divine->Chaos and Mirror->Divine for PoE1', () => {
@@ -43,6 +43,19 @@ describe('removePair', () => {
       { from: 'Exalted Orb', to: 'Divine Orb' },
     ]
     expect(removePair(base, 0)).toEqual([{ from: 'Exalted Orb', to: 'Divine Orb' }])
+  })
+})
+
+describe('swapPair', () => {
+  it('reverses the pair at the given index, leaving others intact', () => {
+    const base = [
+      { from: 'Chaos Orb', to: 'Divine Orb' },
+      { from: 'Exalted Orb', to: 'Divine Orb' },
+    ]
+    expect(swapPair(base, 0)).toEqual([
+      { from: 'Divine Orb', to: 'Chaos Orb' },
+      { from: 'Exalted Orb', to: 'Divine Orb' },
+    ])
   })
 })
 
