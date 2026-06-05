@@ -1,5 +1,6 @@
-import { ItemChip, RemoveButton, TREND_DOWN_COLOR, TREND_UP_COLOR } from '@scalpelpoe/plugin-sdk'
+import { RemoveButton, TREND_DOWN_COLOR, TREND_UP_COLOR } from '@scalpelpoe/plugin-sdk'
 import type { PriceEntry } from '@scalpelpoe/plugin-sdk'
+import { CurrencyCard } from './CurrencyCard'
 import { formatRate } from './format'
 import type { Pair } from './pairs'
 import { pairTrend, rate } from './rates'
@@ -7,17 +8,18 @@ import { pairTrend, rate } from './rates'
 interface Props {
   index: Map<string, PriceEntry>
   pair: Pair
+  version: 1 | 2
+  onSwap: () => void
   onRemove: () => void
 }
 
-/** One watchlist row: From/To icons, both directions of the unit rate, a 7-day
- *  trend chip, and a remove button. Renders a muted note if either currency is
- *  absent from the current snapshot (e.g. unpriced this league). */
-export function WatchlistRow({ index, pair, onRemove }: Props): JSX.Element {
-  const fwd = rate(index, pair.from, pair.to)
-  const rev = rate(index, pair.to, pair.from)
-  const missing = fwd === null || rev === null
-  const trend = missing ? null : pairTrend(index, pair.from, pair.to)
+/** One watchlist row: a CurrencyCard on each side with the conversion details
+ *  centered between them (a "1 : X" rate box, a swap button that flips the
+ *  direction in place, and the 7-day % change). A muted "no price data" note
+ *  replaces the rate when either currency is absent from the snapshot. */
+export function WatchlistRow({ index, pair, version, onSwap, onRemove }: Props): JSX.Element {
+  const r = rate(index, pair.from, pair.to)
+  const trend = r === null ? null : pairTrend(index, pair.from, pair.to)
   const trendColor = trend?.dir === 'up' ? TREND_UP_COLOR : trend?.dir === 'down' ? TREND_DOWN_COLOR : 'var(--text-dim)'
   const arrow = trend?.dir === 'up' ? '▲' : trend?.dir === 'down' ? '▼' : '-'
 
@@ -25,36 +27,69 @@ export function WatchlistRow({ index, pair, onRemove }: Props): JSX.Element {
     <div
       style={{
         display: 'flex',
-        alignItems: 'center',
-        gap: 10,
-        padding: '8px 4px',
+        alignItems: 'stretch',
+        gap: 8,
+        padding: '6px 4px',
         borderBottom: '1px solid var(--border)',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
-        <ItemChip name={pair.from} />
-        <span style={{ color: 'var(--text-dim)' }}>-&gt;</span>
-        <ItemChip name={pair.to} />
-      </div>
+      <CurrencyCard name={pair.from} version={version} />
 
-      <div style={{ flex: 1, minWidth: 0 }}>
-        {missing ? (
-          <span style={{ color: 'var(--text-dim)', fontSize: 12 }}>no price data</span>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', fontSize: 12, color: 'var(--text)' }}>
-            <span>{`1 ${pair.from} = ${formatRate(fwd)} ${pair.to}`}</span>
-            <span style={{ color: 'var(--text-dim)' }}>{`1 ${pair.to} = ${formatRate(rev)} ${pair.from}`}</span>
-          </div>
+      <div
+        style={{
+          flex: '0 0 auto',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: 4,
+          minWidth: 88,
+        }}
+      >
+        <div
+          style={{
+            padding: '2px 10px',
+            borderRadius: 999,
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            fontSize: 13,
+            color: 'var(--text)',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {r === null ? 'no price data' : `1 : ${formatRate(r)}`}
+        </div>
+        <button
+          type="button"
+          onClick={onSwap}
+          aria-label="swap"
+          title="Swap conversion direction"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 4,
+            background: 'transparent',
+            border: 'none',
+            color: 'var(--text-dim)',
+            cursor: 'pointer',
+            fontSize: 11,
+            padding: 0,
+          }}
+        >
+          <span aria-hidden>&#x21C4;</span> swap
+        </button>
+        {trend && (
+          <span style={{ color: trendColor, fontSize: 11, whiteSpace: 'nowrap' }}>
+            {arrow} {Math.abs(trend.pct).toFixed(1)}%
+          </span>
         )}
       </div>
 
-      {!missing && trend && (
-        <span style={{ color: trendColor, fontSize: 12, whiteSpace: 'nowrap' }}>
-          {arrow} {Math.abs(trend.pct).toFixed(1)}%
-        </span>
-      )}
+      <CurrencyCard name={pair.to} version={version} />
 
-      <RemoveButton onClick={onRemove} />
+      <div style={{ flex: '0 0 auto', alignSelf: 'center' }}>
+        <RemoveButton onClick={onRemove} />
+      </div>
     </div>
   )
 }

@@ -3,7 +3,7 @@ import type { ScalpelPluginContext } from '@scalpelpoe/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 import { AddPairControl } from './AddPairControl'
 import { Hero } from './Hero'
-import { addPair, type Pair, removePair, sanitizePairs, seedDefault } from './pairs'
+import { addPair, type Pair, removePair, sanitizePairs, seedDefault, swapPair } from './pairs'
 import { useCurrencyData } from './useCurrencyData'
 import { WatchlistRow } from './WatchlistRow'
 
@@ -73,6 +73,8 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
             key={`${pair.from}->${pair.to}`}
             index={data.index}
             pair={pair}
+            version={ctx.getPoeVersion()}
+            onSwap={() => persist(swapPair(pairs ?? [], i))}
             onRemove={() => persist(removePair(pairs ?? [], i))}
           />
         ))}

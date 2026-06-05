@@ -29,7 +29,7 @@ describe('App', () => {
   it('seeds the default pair on first run and persists it', async () => {
     const ctx = makeCtx(undefined, 1)
     render(<App ctx={ctx} />)
-    await waitFor(() => expect(screen.getByText(/1 Divine Orb = .* Chaos Orb/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/1\s*:\s*P200/)).toBeTruthy())
     expect(ctx.storage.set).toHaveBeenCalledWith('pairs', [
       { from: 'Divine Orb', to: 'Chaos Orb' },
       { from: 'Mirror of Kalandra', to: 'Divine Orb' },
@@ -39,7 +39,7 @@ describe('App', () => {
   it('renders stored pairs', async () => {
     const ctx = makeCtx([{ from: 'Divine Orb', to: 'Exalted Orb' }], 1)
     render(<App ctx={ctx} />)
-    await waitFor(() => expect(screen.getByText(/1 Divine Orb = .* Exalted Orb/)).toBeTruthy())
+    await waitFor(() => expect(screen.getByText(/1\s*:\s*P25/)).toBeTruthy())
   })
 
   it('shows an error banner when prices fail to load', async () => {
