@@ -38,11 +38,13 @@ export function SearchSelect({ label, names, value, onSelect }: Props): JSX.Elem
         onChange={(e) => setQuery(e.target.value)}
         style={{
           width: '100%',
-          background: 'var(--bg-card)',
+          // Match the app's standard inputs (settings page): bg-black/30, no border.
+          background: 'rgba(0, 0, 0, 0.3)',
           color: 'var(--text)',
-          border: '1px solid var(--border)',
+          border: 'none',
           borderRadius: 4,
           padding: '6px 8px',
+          fontSize: 12,
         }}
       />
       {open && matches.length > 0 && (
