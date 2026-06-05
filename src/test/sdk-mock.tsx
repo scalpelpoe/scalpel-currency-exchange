@@ -30,3 +30,9 @@ export function Notice({ title, body }: { icon?: ReactNode; title?: ReactNode; b
 export function ErrorBanner({ message }: { message: string; tone?: string }) {
   return <div>{message}</div>
 }
+export function getItemIcon(item: { name?: string } | null): string | null {
+  return item?.name ? `icon://${item.name}` : null
+}
+export function defaultPoeItem(overrides: Record<string, unknown>, _version?: 1 | 2): Record<string, unknown> {
+  return { itemClass: 'Currency', rarity: 'Currency', name: '', baseType: '', ...overrides }
+}
