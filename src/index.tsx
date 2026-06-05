@@ -10,7 +10,7 @@ const TAB_ICON = renderToStaticMarkup(<Exchange theme="two-tone" fill={['current
 
 export default function activate(ctx: ScalpelPluginContext): void {
   ctx.registerTab({
-    label: 'Currency Exchange',
+    label: 'Currency Exchange Rates',
     icon: TAB_ICON,
     render: (container) => {
       const root = createRoot(container)

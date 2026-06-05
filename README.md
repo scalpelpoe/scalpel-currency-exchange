@@ -1,4 +1,6 @@
-# Currency Exchange (Scalpel plugin)
+# Currency Exchange Rates (Scalpel plugin)
+
+Easily monitor exchange rates for currency. Pretty straightforward.
 
 A personal currency cross-rate watchlist for Path of Exile 1 and 2, powered by poe.ninja data that Scalpel already maintains (via the ctx.prices capability). Add currency pairs and see their live bidirectional rate and 7-day trend at a glance. Requires Scalpel >= 0.9.13.
 

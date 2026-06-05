@@ -2,10 +2,11 @@
   "manifestVersion": 1,
   "id": "currency-exchange",
   "version": "1.0.0",
-  "name": "Currency Exchange",
-  "description": "A personal currency cross-rate watchlist, powered by poe.ninja.",
+  "name": "Currency Exchange Rates",
+  "description": "Easily monitor exchange rates for currency. Pretty straightforward.",
   "author": "scalpelpoe",
   "homepage": "https://github.com/scalpelpoe/scalpel-currency-exchange",
-  "scalpelMinVersion": ">=0.9.13-rc2",
+  "iconUrl": "https://raw.githubusercontent.com/scalpelpoe/scalpel-currency-exchange/main/icon.png",
+  "scalpelMinVersion": ">=0.9.13",
   "poeVersions": [1, 2]
 }
