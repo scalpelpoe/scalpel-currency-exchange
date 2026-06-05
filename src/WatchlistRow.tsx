@@ -18,7 +18,7 @@ interface Props {
    *  list's drag wiring. */
   rowIndex?: number
   onDragStartRow?: (rowIndex: number) => void
-  onDropRow?: (rowIndex: number) => void
+  onDragEnterRow?: (rowIndex: number) => void
   onDragEndRow?: () => void
 }
 
@@ -36,7 +36,7 @@ export function WatchlistRow({
   onRemove,
   rowIndex,
   onDragStartRow,
-  onDropRow,
+  onDragEnterRow,
   onDragEndRow,
 }: Props): JSX.Element {
   const r = rate(index, pair.from, pair.to)
@@ -58,13 +58,19 @@ export function WatchlistRow({
         e.dataTransfer.setData('text/plain', '')
         if (rowIndex !== undefined) onDragStartRow?.(rowIndex)
       }}
+      onDragEnter={(e) => {
+        // Handle the FIRST frame the cursor enters this row (or a child) so the
+        // no-drop cross-out never shows, and live-reorder to this position.
+        e.preventDefault()
+        e.dataTransfer.dropEffect = 'move'
+        if (rowIndex !== undefined) onDragEnterRow?.(rowIndex)
+      }}
       onDragOver={(e) => {
         e.preventDefault()
         e.dataTransfer.dropEffect = 'move'
       }}
       onDrop={(e) => {
         e.preventDefault()
-        if (rowIndex !== undefined) onDropRow?.(rowIndex)
       }}
       onDragEnd={() => {
         setArmed(false)

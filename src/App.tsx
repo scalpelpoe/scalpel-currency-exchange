@@ -13,6 +13,10 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
   const [refreshing, setRefreshing] = useState(false)
   const [dragIndex, setDragIndex] = useState<number | null>(null)
   const loadedRef = useRef(false)
+  // Latest pairs, so the dragend handler can persist the final order (which the
+  // live reorders have written to state during the drag).
+  const pairsRef = useRef<Pair[] | null>(pairs)
+  pairsRef.current = pairs
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 30_000)
@@ -84,11 +88,16 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
             onRemove={() => persist(removePair(pairs ?? [], i))}
             rowIndex={i}
             onDragStartRow={(from) => setDragIndex(from)}
-            onDropRow={(to) => {
-              if (dragIndex !== null && dragIndex !== to) persist(movePair(pairs ?? [], dragIndex, to))
-              setDragIndex(null)
+            onDragEnterRow={(to) => {
+              if (dragIndex !== null && dragIndex !== to) {
+                setPairs((prev) => (prev ? movePair(prev, dragIndex, to) : prev))
+                setDragIndex(to)
+              }
             }}
-            onDragEndRow={() => setDragIndex(null)}
+            onDragEndRow={() => {
+              setDragIndex(null)
+              if (pairsRef.current) void ctx.storage.set('pairs', pairsRef.current)
+            }}
           />
         ))}
       </div>

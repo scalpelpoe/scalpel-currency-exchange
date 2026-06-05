@@ -54,6 +54,7 @@ export function CurrencyCard({ name, version }: Props): JSX.Element {
         <img
           src={icon}
           alt=""
+          draggable={false}
           width={26}
           height={26}
           style={{ position: 'relative', flex: '0 0 auto', objectFit: 'contain' }}
