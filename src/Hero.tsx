@@ -41,9 +41,6 @@ export function Hero({ updatedAt, now, refreshing, onRefresh, children }: Props)
           <div className="section-title" style={{ color: 'var(--text)', fontWeight: 600 }}>
             Currency Exchange Rates
           </div>
-          <div style={{ color: 'var(--text-dim)', fontSize: 12 }}>
-            Live cross-rates from poe.ninja. {formatUpdatedAgo(updatedAt, now)}.
-          </div>
         </div>
         <Button variant="ghost" onClick={onRefresh} disabled={refreshing}>
           {refreshing ? (
