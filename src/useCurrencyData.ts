@@ -1,5 +1,6 @@
 import type { PriceEntry, ScalpelPluginContext } from '@scalpelpoe/plugin-sdk'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { currencyLikeEntries } from './currency-like'
 import { buildRateIndex, currencyNames } from './rates'
 
 export interface CurrencyData {
@@ -26,9 +27,11 @@ export function useCurrencyData(ctx: ScalpelPluginContext): CurrencyData {
   const load = useCallback(async () => {
     const my = ++gen.current
     try {
-      const { prices, updatedAt: ts } = await ctx.prices.getPrices({ category: 'currency' })
+      // Fetch the full snapshot (no category scope) and narrow to currency-like
+      // items, so the pickers list fragments/scarabs/essences/etc. alongside orbs.
+      const { prices, updatedAt: ts } = await ctx.prices.getPrices()
       if (my !== gen.current) return
-      setEntries(prices)
+      setEntries(currencyLikeEntries(prices))
       setUpdatedAt(ts)
       setError(null)
     } catch (e) {

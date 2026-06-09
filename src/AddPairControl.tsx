@@ -31,7 +31,7 @@ export function AddPairControl({ names, version, onAdd }: Props): JSX.Element {
       }}
     >
       <span style={{ fontSize: 11, color: 'var(--text-dim)', lineHeight: 1.2, textAlign: 'left' }}>
-        Add 2 Currencies to Monitor Exchange Rate
+        Add 2 items to monitor exchange rate
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         <SearchSelect label="From" names={names} value={from} version={version} onSelect={setFrom} />

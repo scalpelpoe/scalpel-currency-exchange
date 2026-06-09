@@ -26,10 +26,32 @@ describe('useCurrencyData', () => {
     let latest: ReturnType<typeof useCurrencyData> | undefined
     render(<Probe ctx={ctx} sink={(v) => (latest = v)} />)
     await waitFor(() => expect(latest?.loading).toBe(false))
-    expect(ctx.prices.getPrices).toHaveBeenCalledWith({ category: 'currency' })
+    expect(ctx.prices.getPrices).toHaveBeenCalledWith()
     expect(latest?.names).toContain('Divine Orb')
     expect(latest?.updatedAt).toBe(123)
     expect(latest?.index.get('Divine Orb')?.chaosValue).toBe(200)
+  })
+
+  it('narrows the full snapshot to currency-like items', async () => {
+    const ctx = makeCtx({
+      prices: {
+        getPrices: vi.fn(async () => ({
+          prices: [
+            { name: 'Divine Orb', category: 'currency', chaosValue: 200 },
+            { name: 'Ambush Scarab', category: 'scarab', chaosValue: 3 },
+            { name: 'Mageblood', category: 'unique-accessory', chaosValue: 100000 },
+          ],
+          updatedAt: 1,
+        })),
+        refresh: vi.fn(async () => {}),
+        onChange: vi.fn(() => () => {}),
+      },
+    })
+    let latest: ReturnType<typeof useCurrencyData> | undefined
+    render(<Probe ctx={ctx} sink={(v) => (latest = v)} />)
+    await waitFor(() => expect(latest?.loading).toBe(false))
+    expect(latest?.names).toEqual(['Ambush Scarab', 'Divine Orb'])
+    expect(latest?.index.get('Mageblood')).toBeUndefined()
   })
 
   it('refresh() calls ctx.prices.refresh then reloads', async () => {
