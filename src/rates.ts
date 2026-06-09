@@ -1,9 +1,12 @@
 import type { PriceEntry } from '@scalpelpoe/plugin-sdk'
 import { TREND_THRESHOLD_PCT } from '@scalpelpoe/plugin-sdk'
 
-/** Alphabetically-sorted display names of every priced currency. */
+/** Alphabetically-sorted, de-duplicated display names of every priced currency.
+ *  The host can return variant rows that share a name; we collapse them to one
+ *  entry (as buildRateIndex does) so the picker lists each currency once and its
+ *  React keys stay unique. */
 export function currencyNames(entries: PriceEntry[]): string[] {
-  return entries.map((e) => e.name).sort((a, b) => a.localeCompare(b))
+  return [...new Set(entries.map((e) => e.name))].sort((a, b) => a.localeCompare(b))
 }
 
 /** Index entries by display name for O(1) rate lookups. */

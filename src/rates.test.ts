@@ -6,6 +6,19 @@ describe('currencyNames', () => {
   it('returns the entry names sorted alphabetically', () => {
     expect(currencyNames(PRICES)).toEqual(['Chaos Orb', 'Divine Orb', 'Exalted Orb', 'Orb of Annulment'])
   })
+
+  it('de-duplicates names so each currency appears once', () => {
+    // The host can return variant rows that share a display name (e.g. two
+    // "Divine Orb"). Those must collapse to a single picker entry, matching the
+    // way buildRateIndex keys by name.
+    const withDupes = [
+      PRICES[1], // Divine Orb
+      PRICES[2], // Exalted Orb
+      { ...PRICES[1] }, // Divine Orb (duplicate)
+      { ...PRICES[2] }, // Exalted Orb (duplicate)
+    ]
+    expect(currencyNames(withDupes)).toEqual(['Divine Orb', 'Exalted Orb'])
+  })
 })
 
 describe('buildRateIndex', () => {
