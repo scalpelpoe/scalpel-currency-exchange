@@ -18,4 +18,10 @@ export default function activate(ctx: ScalpelPluginContext): void {
       return () => root.unmount()
     },
   })
+
+  // Expose a hotkey slot in Scalpel's app-macro settings. The user binds the
+  // key themselves; pressing it switches the overlay to our tab.
+  ctx.registerHotkey({ label: 'Open Currency Exchange Rates' }, () => {
+    ctx.openTab()
+  })
 }
