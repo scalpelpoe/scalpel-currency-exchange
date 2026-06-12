@@ -1,16 +1,24 @@
 import { getTrendDirection, TREND_DOWN_COLOR, TREND_UP_COLOR } from '@scalpelpoe/plugin-sdk'
 import { useEffect, useId, useState } from 'react'
 import { createPortal } from 'react-dom'
+import { formatRate } from './format'
+import { historicalRate } from './rates'
 
 // Vendored + trimmed from Scalpel's SparklineOverlay: the 7-day % header, the
-// line, the area fill, and the peak/valley dots, drawn into a small card portaled
-// at the cursor. The chaos-price peak/valley chips were dropped (meaningless for
-// a ratio). Trend direction + colors come from the SDK.
+// line, the area fill, the peak/valley dots, and the peak/valley rate chips
+// (mirroring MiniPriceChip, with the rate reconstructed from the % series via
+// historicalRate), drawn into a small card portaled at the cursor. Trend
+// direction + colors come from the SDK.
 
 interface Props {
   /** 7-day percent-change series of the pair's rate (see rateSeries). */
   graph: (number | null)[]
   cursor: { viewportX: number; viewportY: number; scale: number }
+  /** Current from->to rate. When provided, peak and valley render small chips
+   *  with the reconstructed historical rate on that day. */
+  rate?: number | null
+  /** Icon URL of the quote (to) currency, shown inside the rate chips. */
+  quoteIcon?: string | null
 }
 
 const CLAMP = 200
@@ -20,6 +28,10 @@ const LEFT_INSET = 0
 const RIGHT_INSET = 2
 const TOP_INSET = 7
 const BOTTOM_INSET = 4
+// Approximate chip half-width used to clamp horizontal position so a chip at
+// the edge of the data range stays inside the VIEW_W-wide card. 22px covers a
+// 4-character rate + the 8px currency icon + the chip's padding.
+const CHIP_HALF_W = 22
 
 interface YAxis {
   yMin: number
@@ -64,6 +76,7 @@ function toSegments(graph: (number | null)[], axis: YAxis): Array<Array<{ x: num
 interface ExtremaPoint {
   x: number
   y: number
+  value: number
 }
 
 function findExtrema(graph: (number | null)[], axis: YAxis): { peak: ExtremaPoint | null; valley: ExtremaPoint | null } {
@@ -84,18 +97,44 @@ function findExtrema(graph: (number | null)[], axis: YAxis): { peak: ExtremaPoin
     }
   }
   if (peakIdx < 0) return { peak: null, valley: null }
-  const peak = { x: LEFT_INSET + peakIdx * axis.step, y: projectY(peakVal, axis) }
+  const peak = { x: LEFT_INSET + peakIdx * axis.step, y: projectY(peakVal, axis), value: peakVal }
   if (peakVal === valleyVal) return { peak, valley: null }
-  return { peak, valley: { x: LEFT_INSET + valleyIdx * axis.step, y: projectY(valleyVal, axis) } }
+  return { peak, valley: { x: LEFT_INSET + valleyIdx * axis.step, y: projectY(valleyVal, axis), value: valleyVal } }
 }
 
 function formatPct(v: number): string {
   return `${v >= 0 ? '+' : ''}${v.toFixed(1)}%`
 }
 
+/** Mini chip used at the peak / valley markers when the current rate is known.
+ *  Mirrors Scalpel's MiniPriceChip: 9px bold text in a 75%-opaque pill, with
+ *  the quote currency's 8px icon when available. */
+function MiniRateChip({ value, quoteIcon }: { value: number; quoteIcon?: string | null }): JSX.Element {
+  return (
+    <div
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: 2,
+        padding: '1px 4px',
+        borderRadius: 999,
+        background: 'rgba(0, 0, 0, 0.75)',
+        fontSize: 9,
+        fontWeight: 700,
+        color: '#fff',
+        whiteSpace: 'nowrap',
+        lineHeight: 1,
+      }}
+    >
+      <span>{formatRate(value)}</span>
+      {quoteIcon && <img src={quoteIcon} alt="" aria-hidden draggable={false} style={{ width: 8, height: 8, objectFit: 'contain' }} />}
+    </div>
+  )
+}
+
 /** Sparkline card portaled to document.body at the cursor (escapes any clipping
  *  ancestor), matching the parent UI scale. Mount it only while hovering. */
-export function Sparkline({ graph, cursor }: Props): JSX.Element {
+export function Sparkline({ graph, cursor, rate, quoteIcon }: Props): JSX.Element {
   const direction = getTrendDirection(graph)
   const strokeColor = direction === 'up' ? TREND_UP_COLOR : direction === 'down' ? TREND_DOWN_COLOR : '#888'
   const totalChange = graph[graph.length - 1]
@@ -105,12 +144,23 @@ export function Sparkline({ graph, cursor }: Props): JSX.Element {
   const segments = axis ? toSegments(graph, axis) : []
   const { peak, valley } = axis ? findExtrema(graph, axis) : { peak: null, valley: null }
 
+  // Reconstruct the historical rate at each extremum by anchoring the % series
+  // to today's known rate (graph[last] is today vs the window baseline).
+  const todayPct = totalChange ?? null
+  const peakRate = rate != null && peak ? historicalRate(rate, todayPct, peak.value) : null
+  const valleyRate = rate != null && valley ? historicalRate(rate, todayPct, valley.value) : null
+
   const [animating, setAnimating] = useState(false)
   useEffect(() => {
     setAnimating(true)
   }, [])
 
   const gradientId = `cx-spark-${useId().replace(/:/g, '')}`
+
+  const fadeStyle = animating
+    ? { opacity: 1, animation: 'cx-spark-label 200ms ease-out 700ms backwards' as const }
+    : { opacity: 0 }
+  const clampChipLeft = (x: number): number => Math.max(CHIP_HALF_W, Math.min(x, VIEW_W - CHIP_HALF_W))
 
   const overlay = (
     <div
@@ -183,11 +233,47 @@ export function Sparkline({ graph, cursor }: Props): JSX.Element {
               style={animating ? { animation: 'cx-spark-dot 150ms ease-out 600ms backwards' } : undefined} />
           )}
         </svg>
+        {peak && peakRate != null && (
+          <div
+            // Chip's bottom edge sits ~4px above the peak dot: the chart
+            // container's paddingTop (14) puts SVG y=0 at container y=14, minus
+            // dot radius (4) and the gap (4); translateY(-100%) anchors the
+            // chip's bottom edge there. lineHeight: 0 collapses the wrapper's
+            // line box so the inherited font-size adds no stray space.
+            style={{
+              position: 'absolute',
+              left: clampChipLeft(peak.x),
+              top: 6 + peak.y,
+              transform: 'translate(-50%, -100%)',
+              lineHeight: 0,
+              ...fadeStyle,
+            }}
+          >
+            <MiniRateChip value={peakRate} quoteIcon={quoteIcon} />
+          </div>
+        )}
+        {valley && valleyRate != null && (
+          <div
+            // Top edge sits ~4px below the valley dot: paddingTop (14) +
+            // dot radius (4) + gap (4) = 22, plus the SVG's local y.
+            style={{
+              position: 'absolute',
+              left: clampChipLeft(valley.x),
+              top: 22 + valley.y,
+              transform: 'translateX(-50%)',
+              lineHeight: 0,
+              ...fadeStyle,
+            }}
+          >
+            <MiniRateChip value={valleyRate} quoteIcon={quoteIcon} />
+          </div>
+        )}
       </div>
       <style>{`
         @keyframes cx-spark-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
         @keyframes cx-spark-dot { from { r: 0; } to { r: 4; } }
         @keyframes cx-spark-fill { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes cx-spark-label { from { opacity: 0; } to { opacity: 1; } }
       `}</style>
     </div>
   )

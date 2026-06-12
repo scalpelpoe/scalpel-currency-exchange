@@ -71,6 +71,17 @@ export function rateSeries(idx: Map<string, PriceEntry>, from: string, to: strin
   return out
 }
 
+/** Project a percent-change series entry back to an absolute rate. The series
+ *  holds percent change vs the window baseline; we anchor the math to today's
+ *  known rate by computing baseline = rate / (1 + todayPct/100), then scaling
+ *  by (1 + pointPct/100). Mirrors historicalChaos in Scalpel's SparklineOverlay;
+ *  the -99 clamp keeps the divisor away from zero in pathological data. */
+export function historicalRate(currentRate: number, todayPct: number | null | undefined, pointPct: number): number {
+  const safeToday = Math.max(-99, todayPct ?? 0)
+  const baseline = currentRate / (1 + safeToday / 100)
+  return baseline * (1 + pointPct / 100)
+}
+
 function lastNumber(graph: (number | null)[] | undefined): number | null {
   if (!graph || graph.length === 0) return null
   for (let i = graph.length - 1; i >= 0; i--) {

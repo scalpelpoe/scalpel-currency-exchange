@@ -3,6 +3,7 @@ import { RemoveButton, TREND_DOWN_COLOR, TREND_UP_COLOR } from '@scalpelpoe/plug
 import type { PriceEntry } from '@scalpelpoe/plugin-sdk'
 import { type MouseEvent, useState } from 'react'
 import { CurrencyCard } from './CurrencyCard'
+import { currencyIcon } from './currency-visuals'
 import { formatRate } from './format'
 import type { Pair } from './pairs'
 import { pairTrend, rate, rateSeries } from './rates'
@@ -161,7 +162,7 @@ export function WatchlistRow({
             {arrow} {Math.abs(trend.pct).toFixed(1)}%
           </span>
         )}
-        {showChart && <Sparkline graph={series} cursor={cursor} />}
+        {showChart && <Sparkline graph={series} cursor={cursor} rate={r} quoteIcon={currencyIcon(pair.to, version)} />}
       </div>
 
       <CurrencyCard name={pair.to} version={version} />

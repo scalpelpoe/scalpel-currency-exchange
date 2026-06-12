@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { PRICES } from './__fixtures__/prices'
-import { buildRateIndex, currencyNames, pairTrend, rate, rateSeries } from './rates'
+import { buildRateIndex, currencyNames, historicalRate, pairTrend, rate, rateSeries } from './rates'
 
 describe('currencyNames', () => {
   it('returns the entry names sorted alphabetically', () => {
@@ -61,6 +61,25 @@ describe('pairTrend', () => {
     const t = pairTrend(idx, 'A', 'B')
     expect(t.dir).toBe('flat')
     expect(Number.isFinite(t.pct)).toBe(true)
+  })
+})
+
+describe('historicalRate', () => {
+  it('returns the current rate at the point matching today', () => {
+    // baseline = 220 / 1.10 = 200; the point at +10% lands back on 220.
+    expect(historicalRate(220, 10, 10)).toBeCloseTo(220, 10)
+  })
+  it('reconstructs the baseline-anchored rate at another point', () => {
+    // baseline = 220 / 1.10 = 200; a +50% point was 300.
+    expect(historicalRate(220, 10, 50)).toBeCloseTo(300, 10)
+  })
+  it('treats a null today pct as 0 (current rate is the baseline)', () => {
+    expect(historicalRate(100, null, 50)).toBeCloseTo(150, 10)
+  })
+  it('clamps today pct at -99 so the baseline divisor never hits zero', () => {
+    // -100% would divide by zero; the -99 clamp yields baseline 100 / 0.01.
+    expect(historicalRate(100, -100, 0)).toBeCloseTo(10000, 6)
+    expect(Number.isFinite(historicalRate(100, -100, 50))).toBe(true)
   })
 })
 
