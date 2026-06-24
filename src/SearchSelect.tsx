@@ -1,6 +1,8 @@
+import type { PriceEntry } from '@scalpelpoe/plugin-sdk'
 import { useEffect, useRef, useState } from 'react'
 import { CurrencyCard } from './CurrencyCard'
-import { CURRENCY_GOLD, currencyIcon } from './currency-visuals'
+import { CURRENCY_GOLD, DENOM_META, currencyIcon } from './currency-visuals'
+import { currencyPrice } from './format'
 
 /** Picker field height; the empty input and the selected faux-input match it so
  *  the field never changes height when a currency is chosen. */
@@ -11,6 +13,8 @@ interface Props {
   names: string[]
   value: string | null
   version: 1 | 2
+  /** Price index by currency name; when present, each option shows its current price. */
+  index?: Map<string, PriceEntry>
   /** Called with a name on pick, or null when the chosen currency is cleared. */
   onSelect: (name: string | null) => void
 }
@@ -18,7 +22,7 @@ interface Props {
 /** Currency picker. Empty: a text input that filters a dropdown of icon + name
  *  rows (thin inset dividers between them). Selected: the chosen currency shown
  *  as its CurrencyCard (matching the watchlist below) with an X to clear it. */
-export function SearchSelect({ label, names, value, version, onSelect }: Props): JSX.Element {
+export function SearchSelect({ label, names, value, version, index, onSelect }: Props): JSX.Element {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [hovered, setHovered] = useState<number | null>(null)
@@ -106,6 +110,7 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
         >
           {matches.map((n, i) => {
             const icon = currencyIcon(n, version)
+            const price = currencyPrice(index?.get(n), version)
             return (
               <div key={n}>
                 <button
@@ -144,6 +149,8 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
                   )}
                   <span
                     style={{
+                      flex: 1,
+                      minWidth: 0,
                       fontFamily: 'var(--font-poe)',
                       color: CURRENCY_GOLD,
                       fontSize: 13,
@@ -154,6 +161,32 @@ export function SearchSelect({ label, names, value, version, onSelect }: Props):
                   >
                     {n}
                   </span>
+                  {price && (
+                    <span
+                      title={`${price.text} ${DENOM_META[price.denom].word}`}
+                      style={{
+                        flex: '0 0 auto',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: 3,
+                        color: 'var(--text-dim)',
+                        fontSize: 11,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      {price.text}
+                      {currencyIcon(DENOM_META[price.denom].orb, version) && (
+                        <img
+                          src={currencyIcon(DENOM_META[price.denom].orb, version) as string}
+                          alt={DENOM_META[price.denom].word}
+                          draggable={false}
+                          width={13}
+                          height={13}
+                          style={{ flex: '0 0 auto', objectFit: 'contain' }}
+                        />
+                      )}
+                    </span>
+                  )}
                 </button>
                 {i < matches.length - 1 && <div style={{ height: 1, background: 'var(--border)', margin: '0 8px' }} />}
               </div>

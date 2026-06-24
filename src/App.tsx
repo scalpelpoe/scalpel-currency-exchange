@@ -60,6 +60,7 @@ export function App({ ctx }: { ctx: ScalpelPluginContext }): JSX.Element {
         <AddPairControl
           names={data.names}
           version={ctx.getPoeVersion()}
+          index={data.index}
           onAdd={(p) => persist(addPair(pairs ?? [], p))}
         />
       </Hero>

@@ -1,5 +1,6 @@
 import { ArrowRight } from '@icon-park/react'
 import { Button } from '@scalpelpoe/plugin-sdk'
+import type { PriceEntry } from '@scalpelpoe/plugin-sdk'
 import { useState } from 'react'
 import type { Pair } from './pairs'
 import { SearchSelect } from './SearchSelect'
@@ -7,13 +8,14 @@ import { SearchSelect } from './SearchSelect'
 interface Props {
   names: string[]
   version: 1 | 2
+  index?: Map<string, PriceEntry>
   onAdd: (pair: Pair) => void
 }
 
 /** A boxed add-pair control: a caption above a framed row holding the From / To
  *  pickers (separated by an iconpark arrow) and the Add button. Add is disabled
  *  until both sides are chosen and distinct; the selection clears after adding. */
-export function AddPairControl({ names, version, onAdd }: Props): JSX.Element {
+export function AddPairControl({ names, version, index, onAdd }: Props): JSX.Element {
   const [from, setFrom] = useState<string | null>(null)
   const [to, setTo] = useState<string | null>(null)
   const ready = from !== null && to !== null && from !== to
@@ -34,11 +36,11 @@ export function AddPairControl({ names, version, onAdd }: Props): JSX.Element {
         Add 2 items to monitor exchange rate
       </span>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <SearchSelect label="From" names={names} value={from} version={version} onSelect={setFrom} />
+        <SearchSelect label="From" names={names} value={from} version={version} index={index} onSelect={setFrom} />
         <span style={{ flex: '0 0 auto', display: 'inline-flex', color: 'var(--text-dim)' }}>
           <ArrowRight theme="outline" size={16} fill="currentColor" />
         </span>
-        <SearchSelect label="To" names={names} value={to} version={version} onSelect={setTo} />
+        <SearchSelect label="To" names={names} value={to} version={version} index={index} onSelect={setTo} />
         <Button
           variant="primary"
           onClick={() => {
